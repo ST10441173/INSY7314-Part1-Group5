@@ -3,7 +3,7 @@ const notFound = (req, res, next) => {
     res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
 };
 
-// Centralised error handler - must be registered last. Never leaks
+// Centralised error handler — must be registered last. Never leaks
 // stack traces, file paths, or config to the client; full detail is
 // logged server-side only.
 // eslint-disable-next-line no-unused-vars
