@@ -3,4 +3,3 @@ node_modules
 ssl/*.pem
 npm-debug.log
 .DS_Store
-/node_modules
