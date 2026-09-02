@@ -1,12 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * Generates a signed JWT for an authenticated user.
- * The payload deliberately contains only non-sensitive identifiers
- * (id, role) - never the password hash or other sensitive fields.
- * @param {{id: number|string, role: string}} user
- * @returns {string} signed JWT
- */
+// Payload only carries non-sensitive identifiers - never the password hash.
 const generateToken = (user) => {
     return jwt.sign(
         { id: user.id, role: user.role },
