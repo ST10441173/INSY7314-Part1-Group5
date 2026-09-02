@@ -1,32 +1,31 @@
 const { users, User } = require('../models/userModel');
-// Muhammad: Import your password hashing utility here once youve created it 
+const { hashPassword, comparePassword } = require('../utils/hashPassword');
+const generateToken = require('../utils/generateToken');
 
 /**
- * Controller to handle the creation of new user accounts.
- * Expects name, email, password, and role in the request body.
+ * POST /api/auth/register
+ * Creates a new user account. Input is already validated and sanitised
+ * by registerValidationRules before this controller runs.
  */
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
     try {
         const { name, email, password, role } = req.body;
 
-        // Humza: This is aTemporary manual check. You will replace this with your robust validation middleware
-        if (!name || !email || !password || !role) {
-            return res.status(400).json({ error: 'All fields are required.' });
-        }
-
-        // Query the mock "database" (array) to see if the submitted email is already registered
+        // Query the mock "database" (in-memory array) to see if the
+        // submitted email is already registered.
         const userExists = users.find(u => u.email === email);
         if (userExists) {
             return res.status(409).json({ error: 'User already exists with this email.' }); // 409 Conflict
         }
 
-        // Muhammad: Temporary Placeholder u should hash the password here before saving.
-        
-        const hashedPassword = password; // REPLACE this line when the hashing is implemented
+        // Never store plain-text passwords. bcrypt generates a unique
+        // salt per password and folds it into the resulting hash.
+        const hashedPassword = await hashPassword(password);
 
-        // Instantiate a new user object. Simulates an auto-incrementing ID by adding 1 to the array's current length
+        // Instantiate a new user object. Simulates an auto-incrementing ID
+        // by adding 1 to the array's current length.
         const newUser = new User(
-            users.length + 1, 
+            users.length + 1,
             name,
             email,
             hashedPassword,
@@ -34,20 +33,71 @@ const registerUser = async (req, res) => {
         );
         users.push(newUser);
 
-        // Sends a success response. We intentionally omit the password in the returned user object for security.
+        // Success response. The password hash is intentionally omitted
+        // from the returned user object.
         res.status(201).json({ // 201 Created
             message: 'User registered successfully',
             user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role }
         });
 
     } catch (error) {
-        // Humza: the centralized error handler will eventually catch these server errors i hope
-
-        // Catch unexpected issues (like a failing database connection) to prevent the whole app from crashing
-        res.status(500).json({ error: 'Server error during registration' });
+        // Hand off to the centralised error handler instead of leaking
+        // details here. Keeps every error response consistent.
+        next(error);
     }
 };
 
-// Muhammad: Create your loginUser controller here and export it below
+/**
+ * POST /api/auth/login
+ * Verifies credentials and issues a JWT on success.
+ */
+const loginUser = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
 
-module.exports = { registerUser };
+        const user = users.find(u => u.email === email);
+
+        // Deliberately use the same generic error message and status
+        // code whether the email doesn't exist or the password is
+        // wrong. This prevents attackers from using the login endpoint
+        // to enumerate which emails are registered.
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        const passwordMatches = await comparePassword(password, user.password);
+        if (!passwordMatches) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        const token = generateToken(user);
+
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: { id: user.id, name: user.name, email: user.email, role: user.role },
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * GET /api/auth/me
+ * Protected route - only reachable with a valid JWT (see authMiddleware).
+ * Demonstrates that req.user was correctly populated by the middleware.
+ */
+const getMe = (req, res) => {
+    const user = users.find(u => u.id === req.user.id);
+
+    if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+    }
+
+    res.status(200).json({
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    });
+};
+
+module.exports = { registerUser, loginUser, getMe };
