@@ -26,7 +26,7 @@ const registerValidationRules = [
         .normalizeEmail(),
     body('password')
         .notEmpty().withMessage('Password is required.')
-        .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.')
+        .isLength({ min: 8, max: 72 }).withMessage('Password must be between 8 and 72 characters long.')
         .matches(/\d/).withMessage('Password must contain at least one number.')
         .matches(/[A-Za-z]/).withMessage('Password must contain at least one letter.'),
     body('role')
