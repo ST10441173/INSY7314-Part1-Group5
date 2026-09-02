@@ -17,9 +17,9 @@ This part of the POE (Part 1) builds the secure backend foundation: user registr
 
 | Member | Student number | Area of ownership | Key files |
 |---|---|---|---|
-| ST | ST10121142 | Backend project setup, Express architecture, routing structure, user model, registration endpoint, README architecture/setup sections, GitHub repo management | `index.js`, `models/userModel.js`, `routes/authRoutes.js`, `controllers/authControllers.js` (registration) |
-| Muhammad | *(student number)* | Password hashing, login endpoint, JWT generation, JWT authentication middleware, protected route | `utils/hashPassword.js`, `utils/generateToken.js`, `middleware/authMiddleware.js`, `controllers/authControllers.js` (login, protected route) |
-| Humza | *(student number)* | Input validation, HTTPS configuration, centralised error handling, Postman testing | `middleware/validateMiddleware.js`, `middleware/errorHandler.js`, `ssl/generate-cert.sh`, `postman/HustleHub-Part1.postman_collection.json` |
+| Shavir Tooray | ST10121142 | Backend project setup, Express architecture, routing structure, user model, registration endpoint, README architecture/setup sections, GitHub repo management | `index.js`, `models/userModel.js`, `routes/authRoutes.js`, `controllers/authControllers.js` (registration) |
+| Muhammad | ST10441173 | Password hashing, login endpoint, JWT generation, JWT authentication middleware, protected route | `utils/hashPassword.js`, `utils/generateToken.js`, `middleware/authMiddleware.js`, `controllers/authControllers.js` (login, protected route) |
+| Humza | ST10445149 | Input validation, HTTPS configuration, centralised error handling, Postman testing | `middleware/validateMiddleware.js`, `middleware/errorHandler.js`, `ssl/generate-cert.sh`, `postman/HustleHub-Part1.postman_collection.json` |
 
 All members contributed to the architecture diagram, final integration testing, and reviewing/refining the sections of this README relevant to their area. See the GitHub commit history for the detailed, file-by-file record of individual contributions.
 
