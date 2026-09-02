@@ -1,7 +1,7 @@
 #!/bin/sh
 # Regenerates the local, self-signed SSL certificate used to run the
 # API over HTTPS in development. This is NOT a certificate for
-# production use — it exists purely so the API can be served over
+# production use - it exists purely so the API can be served over
 # https://localhost during development and for the Part 1 demo video.
 #
 # Usage: sh ssl/generate-cert.sh
