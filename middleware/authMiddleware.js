@@ -1,18 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * Protects a route by requiring a valid JWT in the Authorization header.
- * Expected header format: "Authorization: Bearer <token>"
- *
- * Rejects (401) requests with:
- *  - no Authorization header
- *  - a header that isn't a Bearer token
- *  - a token that fails signature verification
- *  - a token that has expired
- *
- * On success, attaches the decoded payload to req.user for use in
- * downstream route handlers (e.g. req.user.id, req.user.role).
- */
+// Requires "Authorization: Bearer <token>". Rejects missing, malformed,
+// invalid, or expired tokens with the same generic 401 response.
 const protect = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -21,27 +10,19 @@ const protect = (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-
     if (!token) {
         return res.status(401).json({ error: 'Authentication required. No token provided.' });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // { id, role, iat, exp }
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
         next();
     } catch (error) {
-        // Covers both invalid signatures and expired tokens (TokenExpiredError)
-        // without leaking any internal error detail to the client.
         return res.status(401).json({ error: 'Invalid or expired token.' });
     }
 };
 
-/**
- * Restricts a route to specific roles. Must be used AFTER `protect`,
- * since it relies on req.user being set.
- * Usage: router.delete('/gigs/:id', protect, authorize('Freelancer', 'Admin'), ...)
- */
+// Use after `protect`. Restricts a route to specific roles.
 const authorize = (...allowedRoles) => {
     return (req, res, next) => {
         if (!req.user || !allowedRoles.includes(req.user.role)) {
