@@ -13,7 +13,17 @@ Because the platform handles user credentials, transaction records, and income d
 
 This part of the POE (Part 1) builds the secure backend foundation: user registration, authentication, and the core security controls everything else will be built on top of. Marketplace features (gigs, bookings, transactions) are introduced in Part 2.
 
-## 2. Architecture
+## 2. Team contributions
+
+| Member | Student number | Area of ownership | Key files |
+|---|---|---|---|
+| ST | ST10121142 | Backend project setup, Express architecture, routing structure, user model, registration endpoint, README architecture/setup sections, GitHub repo management | `index.js`, `models/userModel.js`, `routes/authRoutes.js`, `controllers/authControllers.js` (registration) |
+| Muhammad | *(student number)* | Password hashing, login endpoint, JWT generation, JWT authentication middleware, protected route | `utils/hashPassword.js`, `utils/generateToken.js`, `middleware/authMiddleware.js`, `controllers/authControllers.js` (login, protected route) |
+| Humza | *(student number)* | Input validation, HTTPS configuration, centralised error handling, Postman testing | `middleware/validateMiddleware.js`, `middleware/errorHandler.js`, `ssl/generate-cert.sh`, `postman/HustleHub-Part1.postman_collection.json` |
+
+All members contributed to the architecture diagram, final integration testing, and reviewing/refining the sections of this README relevant to their area. See the GitHub commit history for the detailed, file-by-file record of individual contributions.
+
+## 3. Architecture
 
 HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagram below shows where Part 1 sits within the overall planned architecture and the security boundary around it.
 
@@ -54,7 +64,7 @@ HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagra
 5. The token is returned to the client, which must send it as `Authorization: Bearer <token>` on subsequent requests to protected routes.
 6. `authMiddleware.protect` verifies the token's signature and expiry on every protected request before the route handler runs.
 
-## 3. Project structure
+## 4. Project structure
 
 ```
 hustlehub/
@@ -83,12 +93,12 @@ hustlehub/
 
 Routes, controllers, models, and middleware are kept in separate folders so each layer has a single responsibility and the codebase stays easy to extend in Part 2.
 
-## 4. Security decisions
+## 5. Security decisions
 
-### 4.1 Password hashing
+### 5.1 Password hashing
 Passwords are never stored or logged in plain text. On registration, `utils/hashPassword.js` hashes the password with **bcrypt** (12 salt rounds) before it's saved. bcrypt generates a unique salt per password automatically and embeds it in the resulting hash, which protects against rainbow-table attacks and means two users with the same password never produce the same stored hash. On login, `bcrypt.compare` checks the submitted password against the stored hash - the plain-text password is never compared directly or stored anywhere, even temporarily.
 
-### 4.2 Token-based authentication (JWT)
+### 5.2 Token-based authentication (JWT)
 After a successful login, the server issues a signed JSON Web Token containing only the user's `id` and `role` - never the password hash or other sensitive data. The token is signed with a secret (`JWT_SECRET`) that lives only in `.env` on the server and expires after 1 hour (`JWT_EXPIRES_IN`).
 
 Protected routes (currently `GET /api/auth/me`) are wrapped in `authMiddleware.protect`, which:
@@ -99,25 +109,25 @@ Protected routes (currently `GET /api/auth/me`) are wrapped in `authMiddleware.p
 
 All four cases return a generic `401 Unauthorized` with no detail about *why* verification failed, so an attacker probing the endpoint can't distinguish "expired" from "tampered" from "malformed."
 
-### 4.3 Input validation
+### 5.3 Input validation
 All registration and login input is validated with `express-validator` before it reaches any business logic:
 - Names are trimmed, length-checked, and HTML-escaped to reduce stored XSS risk.
 - Emails must be valid format and are normalised.
-- Passwords must be at least 8 characters and contain both a letter and a number.
+- Passwords must be between 8 and 72 characters and contain both a letter and a number (72 is bcrypt's own byte limit - anything longer is silently truncated, so the upper bound prevents a false sense of security).
 - Roles are restricted to an explicit allow-list (`Client`, `Freelancer`, `Admin`) rather than accepting arbitrary strings.
 
 Validation failures return a `400` with a structured list of field-level messages, never a stack trace.
 
-### 4.4 HTTPS
+### 5.4 HTTPS
 The API is served over HTTPS using a locally generated, self-signed SSL certificate (see `ssl/generate-cert.sh`). This ensures credentials and JWTs are encrypted in transit, even in local development, so the team builds the habit of using TLS everywhere rather than treating it as something added just before deployment. The private key is not committed to GitHub - each developer generates their own local certificate.
 
-### 4.5 Safe error handling
+### 5.5 Safe error handling
 `middleware/errorHandler.js` is registered last in the middleware chain and catches every error in the app. Regardless of what actually goes wrong server-side, clients only ever receive a generic message and an appropriate HTTP status code - never a stack trace, file path, or environment variable value. The real error is logged server-side (`console.error`) for developers to debug, but that detail never crosses the network boundary. A separate `notFound` handler returns a clean `404` for any route that doesn't exist, instead of Express's default HTML error page.
 
-### 4.6 Secrets management
+### 5.6 Secrets management
 `JWT_SECRET` and other configuration are loaded from a `.env` file via `dotenv`, and `.env` is excluded from version control via `.gitignore`. `.env.example` is committed instead, so the team knows which variables are required without ever exposing real secret values in the repository. The server refuses to start at all if `JWT_SECRET` is missing, rather than silently signing tokens with an insecure default.
 
-## 5. Setup & running locally
+## 6. Setup & running locally
 
 **Requirements:** Node.js 18+, npm.
 
@@ -138,7 +148,7 @@ npm start
 
 The API will be available at `https://localhost:3000`. Because the certificate is self-signed, your browser/Postman will warn that it's not trusted - this is expected for local development (see Postman note below).
 
-## 6. API endpoints
+## 7. API endpoints
 
 | Method | Endpoint | Auth required | Description |
 |---|---|---|---|
@@ -147,7 +157,7 @@ The API will be available at `https://localhost:3000`. Because the certificate i
 | POST | `/api/auth/login` | No | Log in with email + password, receive a JWT |
 | GET | `/api/auth/me` | Yes (Bearer JWT) | Returns the authenticated user's profile |
 
-## 7. Testing with Postman
+## 8. Testing with Postman
 
 A ready-to-import collection is provided at `postman/HustleHub-Part1.postman_collection.json`. It covers:
 - Successful registration
@@ -161,10 +171,10 @@ A ready-to-import collection is provided at `postman/HustleHub-Part1.postman_col
 
 Import the collection, select (or create) an environment with `base_url = https://localhost:3000`, and run the requests in order (Login must run after Register so the JWT variable is populated for the protected-route tests).
 
-## 8. Demonstration video
+## 9. Demonstration video
 
 *[Add link to demonstration video here, showing: server starting over HTTPS, successful registration, successful login with JWT returned, and access to the protected `/api/auth/me` route.]*
 
-## 9. What's next (Part 2)
+## 10. What's next (Part 2)
 
 Part 1 deliberately keeps data in-memory and covers only authentication. Part 2 will add: MongoDB persistence, gig management, bookings, transaction records, a React frontend, role-based access control across all endpoints, rate limiting, security headers (Helmet + CSP), and expanded automated testing (Newman + frontend tests).
