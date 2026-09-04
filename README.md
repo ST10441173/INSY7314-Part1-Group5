@@ -25,35 +25,11 @@ All members contributed to the architecture diagram, final integration testing, 
 
 ## 3. Architecture
 
-HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagram below shows where Part 1 sits within the overall planned architecture and the security boundary around it.
+HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagram below shows where Part 1 sits within the overall planned architecture and the security boundary around it. Please click the Markdown link to view the MERN architecture Diagram:
 
 ```
-                                    HTTPS (TLS)
- ┌────────────┐   register/login    ┌──────────────────────────────────┐
- │            │ ───────────────────▶│         Express API (Node.js)     │
- │  Client /  │                      │  ┌──────────────────────────────┐│
- │  Postman   │ ◀─────────────────── │  │ Middleware                    ││
- │ (React app │   JSON + JWT         │  │  - express.json (body parse)  ││
- │  in Part 2)│                      │  │  - validation (express-       ││
- └────────────┘                      │  │    validator, sanitises input)││
-                                      │  │  - JWT auth (protect routes)  ││
-                                      │  │  - centralised error handler  ││
-                                      │  └──────────────────────────────┘│
-                                      │  ┌──────────────────────────────┐│
-                                      │  │ routes/authRoutes.js          ││
-                                      │  └──────────────┬───────────────┘│
-                                      │  ┌──────────────▼───────────────┐│
-                                      │  │ controllers/authControllers.js││
-                                      │  └──────────────┬───────────────┘│
-                                      │  ┌──────────────▼───────────────┐│
-                                      │  │ models/userModel.js           ││
-                                      │  │ (in-memory array - Part 1     ││
-                                      │  │  only; MongoDB from Part 2)   ││
-                                      │  └────────────────────────────────┘
-                                      └──────────────────────────────────┘
-                    ▲ System boundary: everything inside this box is the
-                    │ trusted backend. Passwords never leave it in plain
-                    │ text; the JWT secret and .env never leave the server.
+<img width="1261" height="641" alt="hustlehub+ drawio" src="https://github.com/user-attachments/assets/27ab591d-7924-418d-9ab3-4bd34f4501bb" />
+
 ```
 
 **Request flow (login example):**
