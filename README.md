@@ -141,6 +141,27 @@ The API will be available at `https://localhost:3000`. Because the certificate i
 | POST | `/api/auth/login` | No | Log in with email + password, receive a JWT |
 | GET | `/api/auth/me` | Yes (Bearer JWT) | Returns the authenticated user's profile |
 
+## 7.1. API architecture 
+
+The API architecture for HustleHub+ follows a modular RESTful design that separates routing, business logic, and data management into isolated layers to ensure maintainability and security.
+
+| Directory / Component | Architectural Role | HustleHub+ Implementation |
+| :--- | :--- | :--- |
+| **`index.js`** | The main entry point that initializes the Express server, parses JSON, and mounts the base API routes. | HTTPS configuration, global error handling middleware. |
+| **`routes/`** | Defines API endpoints (URL paths) and maps incoming HTTP methods (POST, GET) to their respective controllers. | `authRoutes.js` (routes for `/register`, `/login`, `/me`). |
+| **`middleware/`** | Intercepts incoming requests to run security, authentication, and formatting checks before processing. | Input validation checks, JWT verification rules. |
+| **`controllers/`** | Executes the core business logic, orchestrates data flow, and returns final HTTP status codes and JSON responses. | `authController.js` (registration logic, checking duplicates). |
+| **`models/`** | Defines the strict structure of the data and handles all read/write interactions with the storage layer. | `userModel.js` (User class, in-memory array storage). |
+| **`utils/`** | Houses reusable, single-purpose helper functions to keep controllers clean and focused. | `hash.js` (bcrypt password hashing tools). |
+| **`config/`** | Stores sensitive environment variables and external application settings. | Local SSL certificates, JWT secrets (`.env` variables). |
+
+**The API Request Lifecycle**
+1. **Reception:** A client sends an HTTP request to a specific endpoint (e.g., `POST /api/auth/register`).
+2. **Routing:** The `index.js` file forwards the request to the `routes/` directory, which identifies the exact path and method.
+3. **Interception:** The router passes the request through the `middleware/` layer. If input is missing or a JWT is invalid, the middleware rejects the request immediately.
+4. **Execution:** If the middleware passes, the request enters the `controllers/` layer. The controller utilizes the `utils/` to hash passwords and the `models/` to save the record.
+5. **Response:** The controller returns a structured JSON payload (e.g., a success message and token) along with the appropriate HTTP status code (201, 400, 401, etc.) back to the client.
+
 ## 8. Testing with Postman
 
 A ready-to-import collection is provided at `postman/HustleHub-Part1.postman_collection.json`. It covers:
