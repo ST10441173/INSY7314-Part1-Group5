@@ -32,13 +32,21 @@ HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagra
 
 ```
 
-**Request flow (login example):**
-1. Client sends `POST /api/auth/login` with email + password over HTTPS.
-2. `loginValidationRules` middleware checks the input shape before any business logic runs.
-3. `authControllers.loginUser` looks up the user and uses bcrypt to compare the submitted password against the stored hash.
-4. On success, `generateToken` signs a JWT (payload: `id`, `role`) using `JWT_SECRET` from `.env`.
-5. The token is returned to the client, which must send it as `Authorization: Bearer <token>` on subsequent requests to protected routes.
-6. `authMiddleware.protect` verifies the token's signature and expiry on every protected request before the route handler runs.
+Registration Request Flow:
+The Client Login/Register interface sends HTTPS Requests (POST /API/auth/Register) to the backend API Routes.
+The route passes the request through Input Validation to ensure the submitted data is clean and formatted correctly before reaching any business logic.
+The request reaches the Auth Controllers, which immediately passes the plain-text password to the Password Hashing block to generate a secure hash.
+The Auth Controllers then executes Database Queries (Save User), inserting the new record (ID, Name, Email, Hash, Role) into the In-Memory database layer.
+The database layer Returns Result back to the Auth Controllers confirming the successful save.
+The Auth Controllers sends the final JSON Response & JWT Token back to the Client Side.
+
+Protected Request Flow (Dashboard Access):
+The Client Dashboard sends an HTTPS Request (containing the stored JWT) to the API Routes.
+The routing layer identifies this as a Protected Request and intercepts it, routing it to the JWT Middleware.
+The middleware performs Token Validation to verify the signature and ensure the user is authenticated.
+Once validated, the request is allowed to proceed to the Auth Controllers to handle the specific dashboard logic.
+The controller requests any needed user data from the In-Memory database, which Returns Result.
+The Auth Controllers sends the requested JSON Response back to the Client Dashboard.
 
 ## 4. Project structure
 
