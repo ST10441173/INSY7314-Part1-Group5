@@ -27,10 +27,9 @@ All members contributed to the architecture diagram, final integration testing, 
 
 HustleHub+ follows the MERN stack. In Part 1 only the backend exists; the diagram below shows where Part 1 sits within the overall planned architecture and the security boundary around it. Please click the Markdown link to view the MERN architecture Diagram:
 
-```
-<img width="1261" height="641" alt="hustlehub+ drawio" src="https://github.com/user-attachments/assets/27ab591d-7924-418d-9ab3-4bd34f4501bb" />
 
-```
+<img width="1261" height="641" alt="HustleHub+ architecture diagram" src="./hustlehub+.png" />
+
 
 Registration Request Flow:
 The Client Login/Register interface sends HTTPS Requests (POST /API/auth/Register) to the backend API Routes.
