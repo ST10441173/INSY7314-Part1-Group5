@@ -177,8 +177,5 @@ Import the collection, select (or create) an environment with `base_url = https:
 
 ## 9. Demonstration video
 
-*[Add link to demonstration video here, showing: server starting over HTTPS, successful registration, successful login with JWT returned, and access to the protected `/api/auth/me` route.]*
+https://www.youtube.com/watch?v=NmbJeZmfrJ0
 
-## 10. What's next (Part 2)
-
-Part 1 deliberately keeps data in-memory and covers only authentication. Part 2 will add: MongoDB persistence, gig management, bookings, transaction records, a React frontend, role-based access control across all endpoints, rate limiting, security headers (Helmet + CSP), and expanded automated testing (Newman + frontend tests).
